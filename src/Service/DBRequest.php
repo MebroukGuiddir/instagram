@@ -172,7 +172,7 @@ class DBRequest{
                 $person->setUpdated(new \DateTime('@'.strtotime('now')));
                 echo json_encode($person);
                 $this->em->persist($person);  
-                 $this->em->flush();
+                $this->em->flush();
                 $account->addPerson($person); 
                 $this->em->persist($account);  
                 $this->em->flush();
@@ -265,5 +265,9 @@ class DBRequest{
     public function findAccountByUsername($username){
         return $this->em->getRepository('App\Entity\Account')->findOneByUsername($username);
   }
+
+  public function getPeopleById($instaID,$account) {
+    return $this->em->getRepository('App\Entity\People')->findOneByInstaId($instaID,$account);
+}
 
 }
