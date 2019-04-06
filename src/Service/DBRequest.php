@@ -276,4 +276,19 @@ class DBRequest{
         return $this->em->getRepository('App\Entity\People')->findOneByInstaId($instaID,$account);
     }
     
+    /**
+     * @method update People by setting ToFollow to 'false' and updating datetime
+     * @param instaID ID of People to update
+     * @param account Instagram account 
+     */
+    public function updatePersonByInstaID($instaID,$account) {
+        if ($this->personExist($account,$instaID)) {
+            $this->em->getRepository('App\Entity\People')->findOneByInstaId($instaID,$account)->setToFollow(false);
+            $this->em->getRepository('App\Entity\People')->findOneByInstaId($instaID,$account)->setUpdated(new \DateTime('@'.strtotime('now')));
+            echo json_encode($this->getPeopleByInstaID($instaID,$account));
+            $this->em->persist($this->getPeopleByInstaID($instaID,$account));  
+            $this->em->flush();
+        }
+    }
+    
 }

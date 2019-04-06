@@ -54,21 +54,14 @@ class LikeAndFollowUsersCommand extends Command
         $password = $input->getArgument('password');
         $ig = new \InstagramAPI\Instagram($debug, $truncatedDebug);
         try {
-            //Login Instagram account
             $ig->login($username, $password);
-            //Get account instance
             $account=$this->db->findAccountByUsername($username);
-            $output->writeln($account->getUsername());
-            //$output->writeln('account collected!');
-            //DBRequest to get peopleToInteract
+            //$output->writeln($account->getUsername());
             $peopleToInteract = $this->db->getAllPeopleForAccount($account);
-            //$output->writeln('people collected!');
             $likeUserMediasCommand = $this->getApplication()->find('app:likeUserMedias');
             $followCommand = $this->getApplication()->find('app:follow'); 
-            //LikeUserMedias and follow people of account
             foreach($peopleToInteract as $person) {
-                //Like 2 pictures of person
-                $output->writeln($person->getUsername());
+                //$output->writeln($person->getUsername());
                 $likeUserMediasArguments = [
                     'command' => 'app:likeUserMedias',
                     'username' => $username,
@@ -77,7 +70,6 @@ class LikeAndFollowUsersCommand extends Command
                 ];
                 $likeUserMediasInput = new ArrayInput($likeUserMediasArguments);
                 $likeUserMediasCommand->run($likeUserMediasInput, $output);
-                //Follow person
                 $followCommandArguments = [
                     'command' => 'app:follow',
                     'username' => $username,
@@ -87,14 +79,11 @@ class LikeAndFollowUsersCommand extends Command
                 $followInput = new ArrayInput($followCommandArguments);
                 sleep(rand(3,6));
                 $followCommand->run($followInput, $output); 
-                //Update person in People table by
-                //setting toFollow to 'false' and update Date in updated 
-                //$this->db->getPeopleByInstaId($person->getInstaID(),$account)->setToFollow(false);
-                //$this->db->getPeopleByInstaId($person->getInstaID(),$account)->setUpdated(new \DateTime('@'.strtotime('now')));
+                $this->db->updatePersonByInstaID($person->getInstaID(),$account);
                 //$output->writeln($person->getUsername().' followed correctly and updated in People table');
-                //Pause of 30 secondes between the treatment of each person
                 sleep(30);
             }
+            //$output->writeln('end');
         }
         catch (\Exception $e) {
             throw new \Exception('Something went wrong: ' . $e->getMessage());
